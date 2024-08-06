@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+Produtos
+{% endblock %}
+
+{% block conteudo %}
+<body class="text-center">
+  <div class="container">
+    <div class = "yellowbox">
+      <h2 style="color: white; ">Produtos Disponíveis</h2>
+      <p style="color: white; ;">Clique em comprar o item caso tenha interesse</p>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10 col-lg-8">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+          {% for item in itens %}
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body" style="text-align: left;">
+                <h5 class="card-title">{{ item.nome }}</h5>
+                <p class="card-text"><strong>Cod Barra:</strong> {{ item.cod_barra }}</p>
+                <p class="card-text"><strong>Preço:</strong> R$ {{ item.preco }}</p>
+              </div>
+              <div class="card-footer" style="text-align: left;">
+                <!-- Botão para abrir o modal com mais informações -->
+                <button data-bs-toggle="modal" data-bs-target="#infoModal-{{item.Id}}" class="btn btn-outline-info">Mais informações</button>
+                <!-- Botão para adicionar ao carrinho -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal de mais informações -->
+          <div class="modal fade" id="infoModal-{{item.Id}}" tabindex="-1" aria-labelledby="infoModalLabel-{{item.Id}}" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 style="color: black;" class="modal-title" id="infoModalLabel-{{item.Id}}">{{ item.nome }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="text-align: left;">
+                  <p style="color: black;"><strong>Nome:</strong> {{ item.nome }}</p>
+                  <p style="color: black;"><strong>Cod Barra:</strong> {{ item.cod_barra }}</p>
+                  <p style="color: black;"><strong>Preço:</strong> R$ {{ item.preco }}</p>
+                  <p style="color: black;"><strong>Descrição:</strong> {{ item.descricao }}</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                  <button data-bs-toggle="modal" data-bs-target="#compraModal-{{item.Id}}" class="btn btn-outline-success">Adicionar ao carrinho</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal de adicionar ao carrinho -->
+          <div class="modal fade" id="compraModal-{{item.Id}}" tabindex="-1" aria-labelledby="compraModalLabel-{{item.Id}}" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 style="color: black;" class="modal-title" id="compraModalLabel-{{item.Id}}">Adicionar ao Carrinho</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="text-align: left;">
+                  <p style="color: black;">Tem certeza que deseja adicionar {{ item.nome }} ao carrinho?</p>
+                </div>
+                <div class="modal-footer">
+                  <form method="POST" action="{{ url_for('page_produto') }}">
+                    {{ compra_form.hidden_tag() }}
+                    <input type="hidden" name="compra_produto" value="{{ item.nome }}">
+                    <button type="submit" class="btn btn-success">Adicionar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+      body {
+          font-family: "Poppins", sans-serif;
+          background-color: #ffff;
+          color: white;
+
+          .yellowbox {
+              background-color: #f7941D;
+              border-radius: 30px;
+              padding: 2em;
+              color: #ffff;
+              text-decoration: none;
+              margin: 2em;
+              text-align: start;
+              font-size: 30px;
+              font-weight: 700;
+          }
+
+          .conteudo {
+              margin: 1em 3em 1em 1em;
+              width: 400px;
+              height: auto;
+          }
+
+          .caixasTexto {
+              text-align: left;
+          }
+
+          .botaoCadastro {
+              background-color: #2BA536;
+              border-radius: 100px;
+              border: #ffff solid 2px;
+              padding: 0.5em 2em;
+              color: #ffffff;
+              text-decoration: none;
+              margin-top: 400px;
+              font-size: 14px;
+          }
+
+          .nome {
+              font-size: 18px;
+              font-weight: 400;
+              color: #ffff;
+              margin: 1em 1em 0.5em 1em;
+
+          }
+
+          .cadastrotxt {
+              font-size: 18px;
+              font-weight: 400;
+              color: #ffff;
+              margin: 1em 1em 0.5em 1em;
+              line-height: 0px;
+          }
+
+          .botaoSubmit{
+              background-color: #ffff;
+              border-radius: 100px;
+              border: #ffff solid 2px;
+              color: #2BA536;
+              text-decoration: none;
+              font-size: 18px;
+              padding: 0.5em 3em;
+              
+          }
+       
+
+      }
+  </style>
+
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+{% endblock %}

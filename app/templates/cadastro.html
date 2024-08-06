@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+Formulario de Cadastro
+{% endblock %}
+
+{% block conteudo %}
+<body class="text-center">
+    <div class="container">
+        <h1 class="h3 mb-2 font-weight-normal">
+            Por favor, crie a sua conta
+        </h1>
+        <body class="text-center">
+            <div class="greenBox">
+                <div class="conteudo">
+                    <form method="POST" class="form-register" style="color: whitesmoke;">
+                        <div class="caixasTexto">
+                        {{ form.hidden_tag()}}
+
+                        <p class="nome">Nome de Usuario:</p>
+                        {{form.usuario(class="form-control")}}
+
+                        <p class="nome">Email:</p>
+                        {{form.email(class="form-control")}}
+
+                        <p class="nome">Senha:</p>
+                        {{form.senha1(class="form-control")}}
+
+                        <p class="nome">Confirmar Senha:</p>
+                        {{form.senha2(class="form-control")}}
+                        <br>
+                    </div>
+                        <div class="checkbox mb-3 mx-5">
+                            <div class="d-grid">
+                                {{form.submit(class="botaoSubmit")}}
+                            </div>
+                            <br>
+                            <h5>Você ja possui cadastro?</h5><br>
+                            <a  class="botaoCadastro" href="{{url_for('page_login')}}">Logar</a>
+                        </div>
+
+                    
+                    </form>
+                </div>
+            <a><img src="{{url_for('static',filename='../static/img/login.png')}}" width="400"></a>
+        </div>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background-color: #ffff;
+            color: white;
+
+            .greenBox {
+                background-color: #2BA536;
+                border-radius: 30px;
+                padding: 2em;
+                color: #ffff;
+                text-decoration: none;
+                margin: 2em;
+                align-items: center;
+                display: flex;
+                justify-content: space-evenly;
+            }
+
+            .conteudo {
+                margin: 1em 3em 1em 1em;
+                width: 400px;
+                height: auto;
+            }
+
+
+            .caixasTexto {
+                text-align: left;
+            }
+
+            .botaoCadastro {
+                background-color: #2BA536;
+                border-radius: 100px;
+                border: #ffff solid 2px;
+                padding: 0.5em 2em;
+                color: #ffffff;
+                text-decoration: none;
+                margin-top: 400px;
+                font-size: 14px;
+            }
+
+            .nome {
+                font-size: 18px;
+                font-weight: 400;
+                color: #ffff;
+                margin: 1em 1em 0.5em 1em;
+
+            }
+
+            .cadastrotxt {
+                font-size: 18px;
+                font-weight: 400;
+                color: #ffff;
+                margin: 1em 1em 0.5em 1em;
+                line-height: 0px;
+            }
+
+            .botaoSubmit{
+                background-color: #ffff;
+                border-radius: 100px;
+                border: #ffff solid 2px;
+                color: #2BA536;
+                text-decoration: none;
+                font-size: 18px;
+                padding: 0.5em 3em;
+                
+            }
+         
+
+        }
+    </style>
+</body>
+
+
+{% endblock %}
