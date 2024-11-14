@@ -38,3 +38,5 @@ class CompraProdutoForm(FlaskForm):
 
 class VendaProdutoForm(FlaskForm):
     submit = SubmitField(label='Vender Produto!')
+
+    

@@ -1,0 +1,906 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+Produtos
+{% endblock %}
+
+{% block conteudo %}
+
+<div class="margi">
+  <div class="caixasTexto">
+    <div class="content">
+      <h2 style="color: black; font-size: 25px;"><strong>{{ item.nome }}</strong></h2>
+      <br>
+      <p style="color: black; font-size: 20px;"><strong>Código de Barra:</strong> {{ item.cod_barra }}</p>
+      <p style="color: black; font-size: 20px;"><strong>Preço:</strong> R$ {{ item.preco }}</p>
+      <p style="color: black; font-size: 20px;"><strong>Descrição:</strong> {{ item.descricao }}</p>
+
+      <div class="botoes">
+        <br>
+        <br>
+        <a href="{{ url_for('page_produto') }}" class="sair" style="color: white; font-size: 20px;">Voltar</a>
+        <button class="comprar" style="color: white; font-size: 20px;" data-bs-toggle="modal"
+          data-bs-target="#pagaModal-{{ item.Id }}">Comprar</button>
+      </div>
+    </div>
+    <br>
+  </div>
+  <div class="conteudoo">
+    <a><img src="{{url_for('static',filename='../static/img/foro.png')}}" width="300"></a>
+  </div>
+</div>
+
+
+
+<!-- Modal de pagamento -->
+<div class="modal fade" id="pagaModal-{{ item.Id }}" tabindex="-1" aria-labelledby="pagaModalLabel-{{ item.Id }}"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-custom">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 style="color: black; font-size: 25px;" class="modal-title" id="pagaModalLabel-{{ item.Id }}">{{ item.nome }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="text-align: left;">
+        <p style="color: black; font-size: 20px;"><strong>Preço:</strong> R$ {{ item.preco }}</p>
+
+        <!-- Opções de Pagamento -->
+        <h6 style="color: black;"><strong>Escolha a forma de pagamento:</strong></h6>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="formaPagamento-{{ item.Id }}" id="credito-{{ item.Id }}"
+            value="credito">
+          <label class="form-check-label" for="credito-{{ item.Id }}" style="color: black;">
+            Cartão de Crédito
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="formaPagamento-{{ item.Id }}" id="debito-{{ item.Id }}"
+            value="debito">
+          <label class="form-check-label" for="debito-{{ item.Id }}" style="color: black;">
+            Cartão de Débito
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="formaPagamento-{{ item.Id }}" id="pix-{{ item.Id }}"
+            value="pix">
+          <label class="form-check-label" for="pix-{{ item.Id }}" style="color: black;">
+            Pix
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="sair" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="comprar" onclick="processarPagamento('{{ item.Id }}')">Continuar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal de pagamento crédito -->
+<div class="modal fade" id="creditoModal-{{ item.Id }}" tabindex="-1" aria-labelledby="creditoModalLabel-{{ item.Id }}"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 style="color: black;" class="modal-title" id="creditoModalLabel-{{ item.Id }}">Pagamento com
+          Cartão de Crédito</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="text-align: left;">
+        <form id="creditoForm-{{ item.Id }}" onsubmit="event.preventDefault(); handlePayment('{{ item.Id }}');">
+          <!-- Campos do formulário -->
+          <div class="mb-3">
+            <label for="nomeCompleto-{{ item.Id }}" style="color: black;" class="form-label"><strong>Nome
+                Completo do Titular</strong></label>
+            <input type="text" class="form-control" id="nome{{ item.Id }}" placeholder="Nome completo" required>
+
+          </div>
+          <div class="mb-3">
+            <label for="cpf-{{ item.Id }}" style="color: black;" class="form-label"><strong>CPF do
+                Titular</strong>
+              </label>
+            <input type="text" class="form-control" id="CPFTamanho-{{ item.Id }}" placeholder="000.000.000-00" required>
+          </div>
+          <div class="mb-3">    
+            
+            <label for="numeroCartao-{{ item.Id }}" style="color: black;" class="form-label"><strong>Número do
+                Cartão de Crédito</strong></label>
+            <input type="text" class="form-control" id="NumeroCart-{{ item.Id }}" placeholder="0000 0000 0000 0000"
+              required>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><strong>Validade</strong></label>
+              <input type="text" class="form-control" id="validadeCartao-{{ item.Id }}" placeholder="MM/AA"
+                maxlength="5" required>
+
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="cvv-{{ item.Id }}" style="color: black;" class="form-label"><strong>CVV</strong></label>
+              <input type="text" class="form-control" id="CVVTamanho-{{ item.Id }}" placeholder="CVV" required>
+            </div>
+          </div>
+
+          <h6 style="color: black; margin-top: 1rem;"><strong>Como deseja receber o produto?</strong></h6>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="formaRecebimento-{{ item.Id }}"
+              id="retirada-{{ item.Id }}" value="retirada" required>
+            <label class="form-check-label" for="retirada-{{ item.Id }}" style="color: black;">Retirada</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="formaRecebimento-{{ item.Id }}"
+              id="entrega-{{ item.Id }}" value="entrega">
+            <label class="form-check-label" for="entrega-{{ item.Id }}" style="color: black;">Entrega</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="sair" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="comprar" id="pagarBtn-{{ item.Id }}"
+          onclick="ValidaCredito('{{ item.Id }}')">Continuar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de pagamento Débito -->
+<div class="modal fade" id="debitoModal-{{ item.Id }}" tabindex="-1" aria-labelledby="debitoModalLabel-{{ item.Id }}"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 style="color: black;" class="modal-title" id="debitoModalLabel-{{ item.Id }}">Pagamento com
+          Cartão de Débito</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="text-align: left;">
+        <form id="debitoForm-{{ item.Id }}" onsubmit="event.preventDefault(); handlePayment('{{ item.Id }}');">
+          <div class="mb-3">
+            <label for="nomeCompleto-{{ item.Id }}" style="color: black;" class="form-label"><strong>Nome
+                Completo do Titular</strong></label>
+            <input type="text" class="form-control" id="nomeCompleto-{{ item.Id }}" placeholder="Nome completo"
+              required>
+          </div>
+          <div class="mb-3">
+            <label for="cpf-{{ item.Id }}" style="color: black;" class="form-label"><strong>CPF do
+              Titular</strong>
+            </label>
+          <input type="text" class="form-control" id="CPFTamanhoDeb-{{ item.Id }}" placeholder="000.000.000-00" required>
+          </div>
+          <div class="mb-3">
+            <label for="numeroCartao-{{ item.Id }}" style="color: black;" class="form-label"><strong>Número do
+              Cartão de Débito</strong></label>
+          <input type="text" class="form-control" id="NumeroCartDeb-{{ item.Id }}" placeholder="0000 0000 0000 0000"
+            required>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><strong>Validade</strong></label>
+              <input type="text" class="form-control" id="validadeCartaoDeb-{{ item.Id }}" placeholder="MM/AA"
+                maxlength="5" required>
+
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="cvv-{{ item.Id }}" style="color: black;" class="form-label"><strong>CVV</strong></label>
+              <input type="text" class="form-control" id="CVVTamanhoDeb-{{ item.Id }}" placeholder="CVV" required>
+            </div>
+          </div>
+          <h6 style="color: black; margin-top: 1rem;"><strong>Como deseja receber o produto?</strong></h6>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="formaRecebimento-{{ item.Id }}"
+              id="retirada-{{ item.Id }}" value="retirada" required>
+            <label class="form-check-label" for="retirada-{{ item.Id }}" style="color: black;">Retirada</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="formaRecebimento-{{ item.Id }}"
+              id="entrega-{{ item.Id }}" value="entrega">
+            <label class="form-check-label" for="entrega-{{ item.Id }}" style="color: black;">Entrega</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="sair" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="comprar" id="pagarBtn-{{ item.Id }}" onclick="ValidaDebito
+                 ('{{ item.Id }}')">Continuar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal de pagamento Pix -->
+<div class="modal fade" id="pixModal-{{ item.Id }}" tabindex="-1" aria-labelledby="pixModalLabel-{{ item.Id }}"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 style="color: black;" class="modal-title" id="pixModalLabel-{{ item.Id }}">Pagamento com Pix</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="text-align: left;">
+        <div class="text-center mb-3">
+          <!-- Imagem do QR code -->
+          <img src="{{ url_for('static', filename='img/QRlogo.png') }}" alt="QR Code para pagamento" width="200">
+        </div>
+        <div class="mb-3">
+          <!-- Código Pix gerado aleatoriamente -->
+          <label for="codigoPix-{{ item.Id }}" style="color: black;" class="form-label"><strong>Código
+              Pix</strong></label>
+          <div class="input-group">
+            <input type="text" class="form-control" id="codigoPix-{{ item.Id }}" value="" readonly>
+            <button class="btn btn-outline-secondary" type="button"
+              onclick="copiarCodigo('{{ item.Id }}')">Copiar</button>
+          </div>
+        </div>
+        <p style="color: black;">Este código é válido por 10 minutos.</p>
+        <p style="color: black;"><strong>Tempo restante:</strong> <span id="cronometro-{{ item.Id }}">10:00</span></p>
+
+        <h6 style="color: black; margin-top: 1rem;"><strong>Como deseja receber o produto?</strong></h6>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="formaRecebimento-{{ item.Id }}" id="retirada-{{ item.Id }}"
+            value="retirada">
+          <label class="form-check-label" for="retirada-{{ item.Id }}" style="color: black;">Retirada</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="formaRecebimento-{{ item.Id }}" id="entrega-{{ item.Id }}"
+            value="entrega">
+          <label class="form-check-label" for="entrega-{{ item.Id }}" style="color: black;">Entrega</label>
+        </div>
+
+        <!-- Novo campo para inserção de comprovante -->
+        <div class="mb-3 mt-4">
+          <label for="comprovantePix-{{ item.Id }}" style="color: black;" class="form-label"><strong>Insira o
+              comprovante</strong></label>
+          <input type="file" class="form-control" id="comprovantePix-{{ item.Id }}" accept="image/*">
+        </div>
+        <div class="flex">
+          <button type="button" class="btn btn-outline-primary" onclick="validarComprovante('{{ item.Id }}')">Validar
+            Comprovante</button>
+          <div class="check" id="status-{{ item.Id }}"></div>
+        </div>
+        <!-- Contêiner para animação, mensagem de sucesso e mensagem de flash -->
+
+        <div id="flash-message-{{ item.Id }}" class="flash-message mt-2"></div>
+
+        <div class="modal-footer">
+          <button type="button" class="sair" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" class="comprar" id="pagarBtn-{{ item.Id }}" onclick="ValidaPix
+          ('{{ item.Id }}')">Continuar</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de retirada -->
+<div class="modal fade" id="retiradaModal-{{ item.Id }}" tabindex="-1"
+  aria-labelledby="retiradaModalLabel-{{ item.Id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 style="color: black;" class="modal-title" id="retiradaModalLabel-{{ item.Id }}">Opção de Retirada</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="text-align: left;">
+        <h6 style="color: black; margin-top: 1rem;"><strong>Selecione uma cidade para fazer a retirada:</strong></h6>
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="cidadeRetirada-{{ item.Id }}" id="jaragua-{{ item.Id }}"
+            value="Jaraguá do Sul">
+          <label class="form-check-label" for="jaragua-{{ item.Id }}" style="color: black;">
+            Jaraguá do Sul
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="cidadeRetirada-{{ item.Id }}" id="joinville-{{ item.Id }}"
+            value="Joinville">
+          <label class="form-check-label" for="joinville-{{ item.Id }}" style="color: black;">
+            Joinville
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="sair" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="comprar" onclick="continuarParaConfirmacaoRETIRADA('{{ item.Id }}')"
+          data-bs-toggle="modal" data-bs-target="#confirmacaoPagamentoModalRETIRADA-{{ item.Id }}">
+          Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal de endereço -->
+<div class="modal fade" id="entregaModal-{{ item.Id }}" tabindex="-1" aria-labelledby="entregaModalLabel-{{ item.Id }}"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 style="color: black;" class="modal-title" id="entregaModalLabel-{{ item.Id }}">Opção de Entrega</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="text-align: left;">
+        <h6 style="color: black; margin-top: 1rem;"><strong>Insira os dados de seu endereço:</strong></h6>
+        <form id="enderecoForm-{{ item.Id }}">
+          <div class="mb-3">
+            <label for="cep-{{ item.Id }}" style="color: black;" class="form-label">CEP</label>
+            <input type="text" class="form-control" id="cep-{{ item.Id }}" placeholder="00000-000" required>
+          </div>
+          <div class="mb-3">
+            <label for="cidade-{{ item.Id }}" style="color: black;" class="form-label">Cidade</label>
+            <input type="text" class="form-control" id="cidade-{{ item.Id }}" placeholder="Cidade" required>
+          </div>
+          <div class="mb-3">
+            <label for="estado-{{ item.Id }}" style="color: black;" class="form-label">Estado</label>
+            <input type="text" class="form-control" id="estado-{{ item.Id }}" placeholder="Estado" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="sair" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="comprar" id="pagarBtn-{{ item.Id }}"
+          onclick="continuarParaConfirmacao('{{ item.Id }}')">
+          Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmação de pagamento ENTREGA-->
+<div class="modal fade" id="confirmacaoPagamentoModal-{{ item.Id }}" tabindex="-1"
+  aria-labelledby="confirmacaoPagamentoModalLabel-{{ item.Id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmacaoPagamentoModalLabel-{{ item.Id }}">Confirmação de Pagamento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="text-align: left;">
+        <h6 style="color: black;"><strong>Endereço de Entrega:</strong></h6>
+        <p id="confirmacao-endereco-{{ item.Id }}" style="color: black;"> </p>
+        <p id="confirmacao-cep-{{ item.Id }}" style="color: black;"></p>
+
+        <h6 style="color: black;"><strong>Método de Pagamento:</strong></h6>
+        <p id="metodoPagamento-{{ item.Id }}" style="color: black;"></p> <!-- Novo campo adicionado -->
+        <p style="color: black;"><strong>Valor:</strong> R$ {{ item.preco }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="sair" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="comprar" onclick="finalizarPagamento('{{ item.Id }}')">Confirmar Pagamento</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal de confirmação de pagamento RETIRADA-->
+<div class="modal fade" id="confirmacaoPagamentoModalRETIRADA-{{ item.Id }}" tabindex="-1"
+  aria-labelledby="confirmacaoPagamentoModalLabel1-{{ item.Id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmacaoPagamentoModalLabel1-{{ item.Id }}">Confirmação de Pagamento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="text-align: left;">
+        <!-- Título do Local de Retirada -->
+        <h6 style="color: black;"><strong>Local de Retirada</strong></h6>
+
+        <!-- Aqui vai o parágrafo onde a cidade selecionada será exibida -->
+        <p id="confirmacao-retirada-{{ item.Id }}" style="color: black;"></p>
+
+        <!-- Informações adicionais -->
+        <h6 style="color: black;"><strong>Método de Pagamento:</strong></h6>
+        <p id="metodoPagamento-{{ item.Id }}" style="color: black;"></p>
+        <p style="color: black;"><strong>Valor:</strong> R$ {{ item.preco }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="sair" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="comprar" onclick="finalizarPagamento('{{ item.Id }}')">Confirmar Pagamento</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+
+  body {
+    font-family: "Poppins", sans-serif;
+    background-color: #ffff;
+    color: white;
+  }
+
+  .modal-dialog-custom {
+    max-width: 800px;
+    /* Ajuste a largura conforme necessário */
+    width: 80%;
+    /* Percentual para garantir responsividade */
+  }
+
+  .modal-content {
+    padding: 20px;
+    /* Espaçamento interno para o conteúdo */
+  }
+
+  .margi {
+    align-items: center;
+    display: flex;
+    gap: 60px;
+    justify-content: space-between;
+    margin: 5em;
+  }
+
+  .conteudoo {
+    background-color: #2BA536;
+    border-radius: 30px;
+    padding: 2em;
+    color: #ffff;
+    text-decoration: none;
+    align-items: center;
+    margin: 1em;
+  }
+
+  .comprar {
+    background-color: #2BA536;
+    border-radius: 100px;
+    border: #ffff solid 2px;
+    padding: 0.5em 2em;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .sair {
+    background-color: red;
+    border-radius: 100px;
+    border: #ffff solid 2px;
+    padding: 0.5em 2em;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: center;
+
+  }
+
+  .status-container {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+  }
+
+  .loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .ok-icon {
+    font-size: 20px;
+    color: green;
+    display: none;
+  }
+
+  .error-icon {
+    font-size: 20px;
+    color: red;
+    display: none;
+  }
+
+  .flex {
+    display: flex;
+  }
+
+  .check {
+    margin-left: 40px;
+    margin-top: 5px;
+  }
+</style>
+
+
+<script>
+
+
+
+
+  function finalizarPagamento(itemId) {
+    // Código para processar o pagamento
+    alert('Pagamento confirmado para o item ' + itemId);
+  }
+
+  function fecharTodosModais() {
+    document.querySelectorAll('.modal.show').forEach(modal => {
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      if (bsModal) {
+        bsModal.hide();
+      }
+    });
+  }
+
+  // Adiciona um evento para fechar todos os modais quando um novo modal é aberto
+  document.addEventListener('show.bs.modal', function (event) {
+    fecharTodosModais();
+  });
+
+  function ValidaCredito(itemId) {
+    // Valida o formulário de pagamento com cartão de crédito
+    const form = document.getElementById(`creditoForm-${itemId}`);
+    if (!form.checkValidity()) {
+      // Se o formulário não for válido, exibe uma mensagem de erro
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    // Obtenha o valor da seleção de forma de recebimento
+    const formaRecebimento = document.querySelector(`input[name="formaRecebimento-${itemId}"]:checked`);
+
+    if (formaRecebimento) {
+      fecharTodosModais();
+      if (formaRecebimento.value === 'entrega') {
+        // Se a opção for 'entrega', mostrar o modal de entrega
+        const entregaModal = new bootstrap.Modal(document.getElementById(`entregaModal-${itemId}`));
+        entregaModal.show();
+      } else {
+        // Caso contrário, mostrar o modal de retirada
+        const retiradaModal = new bootstrap.Modal(document.getElementById(`retiradaModal-${itemId}`));
+        retiradaModal.show();
+      }
+      // Atualizar o método de pagamento no modal de confirmação
+      document.getElementById(`metodoPagamento-${itemId}`).textContent = 'Crédito';
+      confirmacaoModal.show();
+    } else {
+      alert('Por favor, selecione uma forma de recebimento.');
+    }
+  }
+
+  function ValidaDebito(itemId) {
+    // Valida o formulário de pagamento com cartão de crédito
+    const form = document.getElementById(`debitoForm-${itemId}`);
+    if (!form.checkValidity()) {
+      // Se o formulário não for válido, exibe uma mensagem de erro
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+
+    // Obtenha o valor da seleção de forma de recebimento
+    const formaRecebimento = document.querySelector(`input[name="formaRecebimento-${itemId}"]:checked`);
+
+    if (formaRecebimento) {
+      fecharTodosModais();
+      if (formaRecebimento.value === 'entrega') {
+        // Se a opção for 'entrega', mostrar o modal de entrega
+        const entregaModal = new bootstrap.Modal(document.getElementById(`entregaModal-${itemId}`));
+        entregaModal.show();
+      } else {
+        // Caso contrário, mostrar o modal de retirada
+        const retiradaModal = new bootstrap.Modal(document.getElementById(`retiradaModal-${itemId}`));
+        retiradaModal.show();
+      }
+      // Atualizar o método de pagamento no modal de confirmação
+      document.getElementById(`metodoPagamento-${itemId}`).textContent = 'Débito';
+      confirmacaoModal.show();
+    } else {
+      alert('Por favor, selecione uma forma de recebimento.');
+    }
+  }
+
+  function ValidaPix(itemId) {
+    // Valida o formulário de pagamento com Pix
+    const formaRecebimento = document.querySelector(`input[name="formaRecebimento-${itemId}"]:checked`);
+
+    if (formaRecebimento) {
+      fecharTodosModais();
+      if (formaRecebimento.value === 'entrega') {
+        // Se a opção for 'entrega', mostrar o modal de endereço
+        const enderecoModal = new bootstrap.Modal(document.getElementById(`entregaModal-${itemId}`));
+        enderecoModal.show();
+      } else {
+        // Caso contrário, mostrar o modal de retirada
+        const retiradaModal = new bootstrap.Modal(document.getElementById(`retiradaModal-${itemId}`));
+        retiradaModal.show();
+      }
+      document.getElementById(`metodoPagamento-${itemId}`).textContent = 'Pix';
+      confirmacaoModal.show();
+    } else {
+      alert('Por favor, selecione uma forma de recebimento.');
+    }
+  }
+
+  // Função para gerar um código Pix aleatório
+  function gerarCodigoPix() {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let codigoPix = '';
+    for (let i = 0; i < 32; i++) { // Tamanho padrão do código Pix pode variar
+      const randomIndex = Math.floor(Math.random() * caracteres.length);
+      codigoPix += caracteres[randomIndex];
+    }
+    return codigoPix;
+  }
+
+  // Função para copiar o código Pix para a área de transferência
+  function copiarCodigo(itemId) {
+    const codigoPix = document.getElementById('codigoPix-' + itemId);
+    codigoPix.select();
+    codigoPix.setSelectionRange(0, 99999); // Para dispositivos móveis
+    document.execCommand('copy');
+    alert('Código Pix copiado: ' + codigoPix.value);
+  }
+
+  // Função para iniciar o cronômetro de 10 minutos
+  function iniciarCronometro(itemId) {
+    let tempoRestante = 600; // 10 minutos em segundos
+    const cronometroElement = document.getElementById('cronometro-' + itemId);
+
+    const intervalo = setInterval(function () {
+      const minutos = Math.floor(tempoRestante / 60);
+      const segundos = tempoRestante % 60;
+      cronometroElement.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+
+      if (tempoRestante <= 0) {
+        clearInterval(intervalo);
+        alert('O tempo para pagamento com Pix expirou.');
+      } else {
+        tempoRestante--;
+      }
+    }, 1000);
+  }
+
+  // Inicializa o código Pix e o cronômetro assim que o modal for aberto
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('shown.bs.modal', function (event) {
+      const itemId = event.target.getAttribute('id').split('-')[1];
+      if (event.target.id.includes('pixModal')) {
+        const codigoPix = gerarCodigoPix();
+        document.getElementById('codigoPix-' + itemId).value = codigoPix;
+        iniciarCronometro(itemId);
+      }
+    });
+  });
+
+  // Função para validar o comprovante Pix e habilitar o botão "Pagar"
+  function validarComprovante(itemId) {
+    const fileInput = document.getElementById(`comprovantePix-${itemId}`);
+    const statusContainer = document.getElementById(`status-${itemId}`);
+    const flashMessage = document.getElementById(`flash-message-${itemId}`);
+    const pagarBtn = document.getElementById(`pagarBtn-${itemId}`);
+
+    console.log(`Validando comprovante para itemId: ${itemId}`);
+
+    if (fileInput.files.length === 0) {
+      // Exibir mensagem de flash se nenhum arquivo for selecionado
+      flashMessage.textContent = 'Nenhum arquivo foi adicionado.';
+      flashMessage.style.display = 'block';
+      statusContainer.innerHTML = ''; // Limpar status anterior
+      pagarBtn.disabled = true; // Desabilitar o botão "Pagar"
+      console.log('Nenhum arquivo adicionado. Botão "Pagar" desabilitado.');
+      return;
+    }
+
+    // Limpar qualquer mensagem de flash anterior
+    flashMessage.textContent = '';
+    flashMessage.style.display = 'none';
+
+    // Mostrar a animação de carregamento
+    statusContainer.innerHTML = `
+    <div class="loading-spinner"></div>
+    <span class="ok-icon" style="display: none;">✔️</span>
+  `;
+
+    const spinner = statusContainer.querySelector('.loading-spinner');
+    const okIcon = statusContainer.querySelector('.ok-icon');
+
+    console.log('Iniciando validação...');
+
+    // Simular a validação com um timeout
+    setTimeout(() => {
+      // Substituir a animação de carregamento pelo símbolo de OK
+      spinner.style.display = 'none';
+      okIcon.style.display = 'inline';
+      pagarBtn.disabled = false; // Desabilitar o botão "Pagar"
+      console.log('Validação concluída. Botão "Pagar" habilitado.');
+    }, 3000);
+  }
+
+
+  function processarPagamento(itemId) {
+    const formaPagamento = document.querySelector('input[name="formaPagamento-' + itemId + '"]:checked').value;
+
+    if (!formaPagamento) {
+      alert('Por favor, selecione uma forma de pagamento.');
+      return;
+    }
+
+    // Abrir o modal correspondente à forma de pagamento escolhida
+    if (formaPagamento === 'credito') {
+      const creditoModal = new bootstrap.Modal(document.getElementById('creditoModal-' + itemId));
+      creditoModal.show();
+    } else if (formaPagamento === 'debito') {
+      const debitoModal = new bootstrap.Modal(document.getElementById('debitoModal-' + itemId));
+      debitoModal.show();
+    } else if (formaPagamento === 'pix') {
+      const pixModal = new bootstrap.Modal(document.getElementById('pixModal-' + itemId));
+      pixModal.show();
+    }
+  }
+
+  function continuarParaConfirmacao(itemId) {
+    // Obtém os valores do formulário de endereço
+    const cep = document.getElementById(`cep-${itemId}`).value;
+    const cidade = document.getElementById(`cidade-${itemId}`).value;
+    const estado = document.getElementById(`estado-${itemId}`).value;
+
+    // Verifica se todos os campos estão preenchidos
+    if (!cep || !cidade || !estado) {
+      alert('Por favor, preencha todos os campos do endereço.');
+      return;
+    }
+
+    // Atualiza as informações no modal de confirmação
+    document.getElementById(`confirmacao-endereco-${itemId}`).textContent = `${cidade} - ${estado}`;
+    document.getElementById(`confirmacao-cep-${itemId}`).textContent = `CEP: ${cep}`;
+
+    // Fecha o modal de entrega e abre o modal de confirmação
+    const entregaModal = bootstrap.Modal.getInstance(document.getElementById(`entregaModal-${itemId}`));
+    entregaModal.hide();
+
+    const confirmacaoModal = new bootstrap.Modal(document.getElementById(`confirmacaoPagamentoModal-${itemId}`));
+    confirmacaoModal.show();
+  }
+
+
+
+
+  function continuarParaConfirmacaoRETIRADA(itemId) {
+    // Obtém a cidade selecionada
+    const cidadeSelecionada = document.querySelector(`input[name="cidadeRetirada-${itemId}"]:checked`);
+
+    // Verifica se uma cidade foi selecionada
+    if (!cidadeSelecionada) {
+      alert('Por favor, selecione uma cidade para retirada.');
+      return;
+    }
+
+    // Verifica qual cidade foi selecionada
+    let cidadeExibir;
+    if (cidadeSelecionada.value === "Jaraguá do Sul") {
+      cidadeExibir = "Jaraguá do Sul";
+    } else {
+      cidadeExibir = "Joinville";
+    }
+
+    // Atualiza as informações no modal de confirmação
+    const cidadeDestino = document.getElementById(`confirmacao-retirada-${itemId}`);
+    if (cidadeDestino) {
+      cidadeDestino.textContent = cidadeExibir;
+    } else {
+      console.error(`Elemento confirmacao-retirada-${itemId} não encontrado.`);
+    }
+
+    // Fecha o modal de retirada e abre o modal de confirmação
+    const retiradaModal = bootstrap.Modal.getInstance(document.getElementById(`retiradaModal-${itemId}`));
+    retiradaModal.hide();
+    confirmacaoModal.show();
+  }
+  document.getElementById('validadeCartao-{{ item.Id }}').addEventListener('input', function (e) {
+    let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+    if (input.length > 2) {
+      input = input.slice(0, 2) + '/' + input.slice(2, 4); // Insere a barra após os dois primeiros dígitos
+    }
+    e.target.value = input.slice(0, 5); // Limita o valor a 5 caracteres (MM/AA)
+  });
+
+  document.getElementById('validadeCartaoDeb-{{ item.Id }}').addEventListener('input', function (e) {
+    let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+    if (input.length > 2) {
+      input = input.slice(0, 2) + '/' + input.slice(2, 4); // Insere a barra após os dois primeiros dígitos
+    }
+    e.target.value = input.slice(0, 5); // Limita o valor a 5 caracteres (MM/AA)
+  });
+
+  document.getElementById('CPFTamanho-{{ item.Id }}').addEventListener('input', function (e) {
+    let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+
+    if (input.length > 3) {
+      input = input.slice(0, 3) + '.' + input.slice(3); // Insere o primeiro ponto após os 3 primeiros dígitos
+    }
+    if (input.length > 7) {
+      input = input.slice(0, 7) + '.' + input.slice(7); // Insere o segundo ponto após os 6 primeiros dígitos
+    }
+    if (input.length > 11) {
+      input = input.slice(0, 11) + '-' + input.slice(11); // Insere o hífen após os 9 primeiros dígitos
+    }
+
+    e.target.value = input.slice(0, 14); // Limita o valor ao tamanho de 14 caracteres (000.000.000-00)
+  });
+
+  document.getElementById('CPFTamanhoDeb-{{ item.Id }}').addEventListener('input', function (e) {
+    let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+
+    if (input.length > 3) {
+      input = input.slice(0, 3) + '.' + input.slice(3); // Insere o primeiro ponto após os 3 primeiros dígitos
+    }
+    if (input.length > 7) {
+      input = input.slice(0, 7) + '.' + input.slice(7); // Insere o segundo ponto após os 6 primeiros dígitos
+    }
+    if (input.length > 11) {
+      input = input.slice(0, 11) + '-' + input.slice(11); // Insere o hífen após os 9 primeiros dígitos
+    }
+
+    e.target.value = input.slice(0, 14); // Limita o valor ao tamanho de 14 caracteres (000.000.000-00)
+  });
+
+  document.getElementById('NumeroCart-{{ item.Id }}').addEventListener('input', function (e) {
+    let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+
+    if (input.length > 4) {
+      input = input.slice(0, 4) + ' ' + input.slice(4); // Insere o primeiro ponto após os 3 primeiros dígitos
+    }
+    if (input.length > 9) {
+      input = input.slice(0, 9) + ' ' + input.slice(9); // Insere o segundo ponto após os 6 primeiros dígitos
+    }
+    if (input.length > 14) {
+      input = input.slice(0, 14) + ' ' + input.slice(11); // Insere o hífen após os 9 primeiros dígitos
+    }
+
+    e.target.value = input.slice(0, 19); // Limita o valor ao tamanho de 14 caracteres (000.000.000-00)
+  });
+
+  document.getElementById('NumeroCartDeb-{{ item.Id }}').addEventListener('input', function (e) {
+    let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+
+    if (input.length > 4) {
+      input = input.slice(0, 4) + ' ' + input.slice(4); // Insere o primeiro ponto após os 3 primeiros dígitos
+    }
+    if (input.length > 9) {
+      input = input.slice(0, 9) + ' ' + input.slice(9); // Insere o segundo ponto após os 6 primeiros dígitos
+    }
+    if (input.length > 14) {
+      input = input.slice(0, 14) + ' ' + input.slice(11); // Insere o hífen após os 9 primeiros dígitos
+    }
+
+    e.target.value = input.slice(0, 19); // Limita o valor ao tamanho de 14 caracteres (000.000.000-00)
+  });
+
+  document.getElementById('CVVTamanho-{{ item.Id }}').addEventListener('input', function (e) {
+    let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+
+    e.target.value = input.slice(0, 3); // Limita o valor ao tamanho de 14 caracteres (000.000.000-00)
+  });
+
+  document.getElementById('CVVTamanhoDeb-{{ item.Id }}').addEventListener('input', function (e) {
+    let input = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+
+    e.target.value = input.slice(0, 3); // Limita o valor ao tamanho de 14 caracteres (000.000.000-00)
+  });
+
+
+
+</script>
+{% endblock %}

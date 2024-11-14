@@ -5,75 +5,83 @@ Landing-page
 {% endblock %}
 
 {% block conteudo %}
-  <div class="py-1">
-    <header class="greenBox">
-      <h1 class="titulo">Uma nova maneira de <br> comer bem e viver <br> melhor!</h1>
-      <div class="botoes">
-      <a class="botao1" href="{{url_for('page_login')}}">Entre</a><p class="or">ou</p>
+<div class="py-1">
+  <header class="greenBox">
+    <h1 class="titulo">Uma nova maneira de <br> comer bem e viver <br> melhor!</h1>
+    <div class="botoes">
+      {% if current_user.is_authenticated %}
+      <a class="botao2" href="{{url_for('page_produto')}}">Conheça nossos Produtos</a>
+
+      {% else %}
+      <a class="botao1" href="{{url_for('page_login')}}">Entre</a>
+      <p class="or">ou</p>
       <a class="botao2" href="{{url_for('page_cadastro')}}">Cadastre-se</a>
-      </div>
-    </header>
+      {% endif %}
+    </div>
+  </header>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-      body {
-        font-family: "Poppins", sans-serif;
-        background-color: #ffff;
-        color: white;
-  
-        .greenBox{
-          background-color: #2BA536;
-          border-radius: 30px;
-          padding: 12em 3em 12em 5em;
-          color: #ffff;
-          text-decoration: none;
-          margin: 2em;
-          align-items: center;
-        }
-  
-        .navbar-nav{
-          align-items: center;
-        }
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-        .titulo{
-          font-size: 60px;
-          font-weight: 600;
-          line-height: 80px;
-        }
-        
-        .botoes{
-          margin-top: 4em;
-          display: flex;
-          align-items: center;
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #ffff;
+      color: white;
 
-        }
-        .botao1{
-          background-color: #ffff;
-          border-radius: 100px;
-          border: #ffff solid 3px;
-          padding: 0.5em 2.5em;
-          color: #2BA536;
-          text-decoration: none;
-          font-size: 25px;
-        }
-
-        .botao2{
-          background-color: #2BA536;
-          border: solid 3px;
-          border-radius: 100px;
-          padding: 0.5em;
-          color: #ffff;
-          text-decoration: none;
-          font-size: 25px;
-        }
-
-        .or{
-          padding: 11px 20px 0 20px;
-          font-size: 25px;
-
-
-        }
+      .greenBox {
+        background-color: #2BA536;
+        border-radius: 30px;
+        padding: 12em 3em 12em 5em;
+        color: #ffff;
+        text-decoration: none;
+        margin: 2em;
+        align-items: center;
       }
-    </style>
-  </div>
+
+      .navbar-nav {
+        align-items: center;
+      }
+
+      .titulo {
+        font-size: 60px;
+        font-weight: 600;
+        line-height: 80px;
+      }
+
+      .botoes {
+        margin-top: 4em;
+        display: flex;
+        align-items: center;
+
+      }
+
+      .botao1 {
+        background-color: #ffff;
+        border-radius: 100px;
+        border: #ffff solid 3px;
+        padding: 0.5em 2.5em;
+        color: #2BA536;
+        text-decoration: none;
+        font-size: 25px;
+      }
+
+      .botao2 {
+        background-color: #2BA536;
+        border: solid 3px;
+        border-radius: 100px;
+        padding: 0.5em;
+        color: #ffff;
+        text-decoration: none;
+        font-size: 25px;
+      }
+
+      .or {
+        padding: 11px 20px 0 20px;
+        font-size: 25px;
+
+
+      }
+    }
+  </style>
+</div>
 {% endblock %}

@@ -1,6 +1,7 @@
 from app import db, login_manager
 from app import bcrypt
 from flask_login import UserMixin
+from datetime import datetime
 
 
 @login_manager.user_loader
@@ -47,7 +48,7 @@ class Item(db.Model):
     cod_barra = db.Column(db.String(length=12),nullable=False, unique=True)
     descricao = db.Column(db.String(length=1024),nullable=False, unique=True)
     dono = db.Column(db.Integer, db.ForeignKey('user.id'))
-    
+        
     def __repr__(self):
         return f'Item {self.nome}'
     

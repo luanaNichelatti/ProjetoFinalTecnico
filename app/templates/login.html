@@ -5,37 +5,36 @@ Pagina de Login
 {% endblock %}
 
 {% block conteudo %}
-
 <body class="text-center">
+    <div class="container">
 
+        <body class="text-center">
+            <div class="greenBox">
+                <div class="conteudo">
+                    <form method="POST" class="form-register" style="color: whitesmoke;">
+                        <div class="caixasTexto">
+                            {{ form.hidden_tag()}}
 
-    <div class="greenBox">
+                            <p class="nome">Usuario:</p>
+                            {{form.usuario(class="form-control")}}
 
-        <div class="conteudo">
-            <form method="POST" class="formes">
-                <div class="caixasTexto">
-                    {{ form.hidden_tag()}}
+                            <p class="nome">Senha:</p>
+                            {{form.senha(class="form-control")}}
+                            <br>
+                        </div>
+                        <div class="checkbox mb-3 mx-5">
+                            <div class="d-grid">
+                                {{form.submit(class="botaoSubmit")}}
+                            </div>
+                            <br>
+                            <h5>Você não possui cadastro?</h5><br>
+                            <a  class="botaoCadastro" href="{{url_for('page_cadastro')}}">Cadastre</a>
+                        </div>
 
-                    <p class="nome">Usuario:</p>
-                    {{form.usuario(class="form-control")}}
-
-                    <p class="nome">Senha:</p>
-                    {{form.senha(class="form-control")}}
+                    </form>
                 </div>
-                <br>
-              
-                    {{form.submit (class = "botaoSubmit")}}
-                
-                <BR>
-                <br>
-                <p class="cadastrotxt">Nao possui cadastro?</p>
-                <br>
-                <a class="botaoCadastro" href="{{url_for('page_cadastro')}}">Cadastre-se</a>
-                <br><br>
-            </form>
+            <a><img src="{{url_for('static',filename='../static/img/login.png')}}" width="400"></a>
         </div>
-        <a><img src="{{url_for('static',filename='../static/img/login.png')}}" width="400"></a>
-    </div>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
@@ -51,7 +50,6 @@ Pagina de Login
                 padding: 2em;
                 color: #ffff;
                 text-decoration: none;
-                margin: 2em;
                 align-items: center;
                 display: flex;
                 justify-content: space-evenly;
@@ -105,6 +103,7 @@ Pagina de Login
                 padding: 0.5em 3em;
                 
             }
+            
          
 
         }
